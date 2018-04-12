@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "api.h"
+#include "bowling.h"
 
 TEST_CASE("Bowling API")
 {

@@ -1,5 +1,5 @@
-#ifndef API_H
-#define API_H
+#ifndef BOWLING_H
+#define BOWLING_H
 
 #include <vector>
 
