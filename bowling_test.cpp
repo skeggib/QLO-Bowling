@@ -117,45 +117,14 @@ TEST_CASE("Bowling API")
             b.add({ 0, 0 });
         b.add({ 9, 1 });
 
-        THEN("the 11th tuple is allowed")
+        THEN("we allow one bonus throw")
         {
-            REQUIRE_NOTHROW(b.add({ 0, 0 }));
+            REQUIRE_NOTHROW(b.add({ 1, 0 }));
         }
 
-        WHEN("the 11th tuple is two zeros")
+        THEN("only one bonus throw is allowed")
         {
-            b.add({ 0, 0 });
-            THEN("the 12th tuple is not allowed")
-            {
-                REQUIRE_THROWS(b.add({ 0, 0 }));
-            }
-        }
-
-        WHEN("the 11th tuple is not zero, a spare nor a strike either")
-        {
-            b.add({ 1, 2 });
-            THEN("the 12th tuple is not allowed")
-            {
-                REQUIRE_THROWS(b.add({ 0, 0 }));
-            }
-        }
-
-        WHEN("the 11th tuple is a spare")
-        {
-            b.add({ 9, 1 });
-            THEN("the 12th tuple is not allowed")
-            {
-                REQUIRE_THROWS(b.add({ 0, 0 }));
-            }
-        }
-
-        WHEN("the 11th tuple is a strike")
-        {
-            b.add({ 10, 0 });
-            THEN("the 12th tuple is not allowed")
-            {
-                REQUIRE_THROWS(b.add({ 0, 0 }));
-            }
+            REQUIRE_THROWS(b.add({ 1, 1 }));
         }
     }
 }
