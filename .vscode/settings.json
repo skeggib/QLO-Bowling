@@ -11,5 +11,10 @@
         "xtr1common": "cpp",
         "utility": "cpp",
         "iostream": "cpp"
-    }
+    },
+    "spellright.language": "fr",
+    "spellright.documentTypes": [
+        "latex",
+        "plaintext"
+    ]
 }
