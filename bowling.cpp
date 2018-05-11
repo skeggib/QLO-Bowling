@@ -34,6 +34,16 @@ void bowling::add(std::pair<int, int> p)
     _pairs.push_back(p);
 }
 
+std::pair<int, int> const & bowling::operator[](size_t index) const
+{
+    return _pairs[index];
+}
+
+size_t bowling::size() const
+{
+    return _pairs.size();
+}
+
 int bowling::score() const
 {
     int sum = 0;        
