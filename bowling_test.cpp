@@ -39,12 +39,17 @@ TEST_CASE("Bowling API")
         bowling b;
         b.add({ 6, 4 });
 
+        THEN("its score is not calculated until the next value is known")
+        {
+            REQUIRE(b.score() == 0);
+        }
+
         WHEN("the next value is between 1 and 9")
         {
-            b.add({ 5, 5 });
-            THEN("the value is doubled")
+            b.add({ 5, 4 });
+            THEN("the value is added to the first tuple")
             {
-                REQUIRE(b.score() == 25);
+                REQUIRE(b.score() == (6+4+5)+(5+4));
             }
         }
         
@@ -60,9 +65,9 @@ TEST_CASE("Bowling API")
         WHEN("the next value is 10")
         {
             b.add({ 10, 0 });
-            THEN("the 10 is doubled")
+            THEN("the 10 is added to the first tuple but is not counted yet")
             {
-                REQUIRE(b.score() == 30);
+                REQUIRE(b.score() == 20);
             }
         }
     }
@@ -72,10 +77,15 @@ TEST_CASE("Bowling API")
         bowling b;
         b.add({ 10, 0 });
 
+        THEN("the score is not counted until two new values are added")
+        {
+            REQUIRE(b.score() == 0);
+        }
+
         WHEN("the sum of the next tuple is 0")
         {
             b.add({ 0, 0 });
-            THEN("nothing changes")
+            THEN("the score is 10")
             {
                 REQUIRE(b.score() == 10);
             }
@@ -84,7 +94,7 @@ TEST_CASE("Bowling API")
         WHEN("the two next values are not 10")
         {
             b.add({ 3, 2 });
-            THEN("the two values are doubled")
+            THEN("the two values are added to the first tuple")
             {
                 REQUIRE(b.score() == 20);
             }
@@ -93,10 +103,19 @@ TEST_CASE("Bowling API")
         WHEN("the next value is 10")
         {
             b.add({ 10, 0 });
-            b.add({ 3, 2 });
-            THEN("the 10 is doubled and the the next tuple is doubled")
+
+            THEN("the score is not counted until the second value is added")
             {
-                REQUIRE(b.score() == 40);
+                REQUIRE(b.score() == 0);
+            }
+
+            WHEN("a new tuple is added")
+            {
+                b.add({ 3, 1 });
+                THEN("the second 10 is added to the first tuple, the first value is added to the first and second tuple and the second value is added to the second tuple")
+                {
+                    REQUIRE(b.score() == (10+10+3) + (10+3+1) + (3+1));
+                }
             }
         }
 
@@ -122,9 +141,48 @@ TEST_CASE("Bowling API")
             REQUIRE_NOTHROW(b.add({ 1, 0 }));
         }
 
+        THEN("the last throw is not doubled")
+        {
+            b.add({ 1, 0 });
+            REQUIRE(b.score() == 11);
+        }
+
         THEN("only one bonus throw is allowed")
         {
             REQUIRE_THROWS(b.add({ 1, 1 }));
         }
+    }
+
+    GIVEN("the 10th tuple is a strike")
+    {
+        bowling b;
+        for (int i = 0; i < 9; ++i)
+            b.add({ 0, 0 });
+        b.add({ 10, 0 });
+
+        THEN("we allow two bonus throws")
+        {
+            REQUIRE_NOTHROW(b.add({ 1, 1 }));
+        }
+
+        THEN("the two bonus throws are not doubled")
+        {
+            b.add({ 1, 1 });
+            REQUIRE(b.score() == 12);
+        }
+
+        THEN("the sum of the two last throws can be greather than 10")
+        {
+            REQUIRE_NOTHROW(b.add({ 10, 1 }));
+        }
+    }
+
+    SECTION("a perfect game a worth 300 points")
+    {
+        bowling b;
+        for (int i = 0; i < 10; ++i)
+            b.add({ 10, 0 });
+        b.add({ 10, 10 });
+        REQUIRE(b.score() == 300);
     }
 }

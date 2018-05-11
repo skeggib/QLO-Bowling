@@ -1,6 +1,7 @@
 #include "bowling.h"
 
 #include <exception>
+#include <algorithm>
 
 bool is_strike(std::pair<int, int> p)
 {
@@ -16,12 +17,17 @@ void bowling::add(std::pair<int, int> p)
 {
     if (p.first < 0 || p.second < 0)
         throw std::exception();
-    if (p.first + p.second > 10)
-        throw std::exception();
+
+    if (_pairs.size() < 10)
+    {
+        if (p.first + p.second > 10)
+            throw std::exception();
+    }
 
     if (_pairs.size() >= 10)
     {
         if (is_spare(_pairs[9]) && p.second == 0) { }
+        else if (is_strike(_pairs[9])) { }
         else throw std::exception();
     }
     
@@ -31,16 +37,68 @@ void bowling::add(std::pair<int, int> p)
 int bowling::score() const
 {
     int sum = 0;        
-    for (int i = 0; i < _pairs.size(); ++i)
+    for (int i = 0; i < std::min((int)_pairs.size(), 9); ++i)
     {
-        sum += _pairs[i].first + _pairs[i].second;
-        if (i > 0)
+        auto current = _pairs[i];
+        
+        if (is_spare(current))
         {
-            if (is_strike(_pairs[i-1]))
-                sum += _pairs[i].first + _pairs[i].second;
-            else if (is_spare(_pairs[i-1]))
-                sum += _pairs[i].first;
+            if (_pairs.size() > i + 1)
+            {
+                auto next = _pairs[i+1];
+                sum += current.first + current.second + next.first;
+            }
+        }
+
+        else if (is_strike(current))
+        {
+            if (_pairs.size() > i + 1)
+            {
+                auto next = _pairs[i+1];
+                
+                if (!is_strike(next))
+                {
+                    sum += current.first + next.first + next.second;
+                }
+
+                else if (_pairs.size() > i + 2)
+                {
+                    auto next_next = _pairs[i+2];
+                    sum += current.first + next.first + next_next.first;
+                }
+            }
+        }
+
+        else
+        {
+            sum += current.first + current.second;
         }
     }
+
+    if (_pairs.size() >= 10)
+    {
+        auto current = _pairs[9];
+        if (is_spare(current))
+        {
+            auto next = _pairs[10];
+
+            if (_pairs.size() >= 11)
+                sum += current.first + current.second + next.first;
+        }
+
+        else if (is_strike(current))
+        {
+            auto next = _pairs[10];
+
+            if (_pairs.size() >= 11)
+                sum += current.first + current.second + next.first + next.second;
+        }
+
+        else
+        {
+            sum += current.first + current.second;
+        }
+    }
+
     return sum;
 }
